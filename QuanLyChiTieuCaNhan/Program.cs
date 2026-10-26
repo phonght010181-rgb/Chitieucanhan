@@ -35,14 +35,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });
 builder.Services.AddAuthorization();
 var app = builder.Build();
-if (args.Contains("--import-legacy"))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await LegacyDataImporter.ImportAsync(db,
-        builder.Configuration["LegacyImport:ConnectionString"] ?? throw new InvalidOperationException("Set LegacyImport__ConnectionString to the read-only legacy connection."), app.Logger);
-    return;
-}
+
 if (args.Contains("--initialize-database"))
 {
     using var scope = app.Services.CreateScope();
