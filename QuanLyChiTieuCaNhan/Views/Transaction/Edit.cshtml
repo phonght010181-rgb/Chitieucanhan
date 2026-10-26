@@ -1,0 +1,113 @@
+@model QuanLyChiTieuCaNhan.ViewModels.TransactionEditViewModel
+@{
+    ViewBag.Title = "Sửa giao dịch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h4><i class="fi fi-rr-edit"></i> Sửa giao dịch</h4>
+        <hr />
+
+        @using (Html.BeginForm("Edit", "Transaction", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.TransactionId)
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.TransactionType)
+                <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                    <label class="btn btn-outline-success @(Model.TransactionType == 1 ? "active" : "")">
+                        <input type="radio" name="TransactionType" value="1" @(Model.TransactionType == 1 ? "checked" : "") /> Thu
+                    </label>
+                    <label class="btn btn-outline-danger @(Model.TransactionType == 2 ? "active" : "")">
+                        <input type="radio" name="TransactionType" value="2" @(Model.TransactionType == 2 ? "checked" : "") /> Chi
+                    </label>
+                    <label class="btn btn-outline-info @(Model.TransactionType == 3 ? "active" : "")">
+                        <input type="radio" name="TransactionType" value="3" @(Model.TransactionType == 3 ? "checked" : "") /> Chuyển khoản
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Amount)
+                @Html.TextBoxFor(m => m.Amount, new { @class = "form-control", type = "number", step = "1000", min = "1" })
+                @Html.ValidationMessageFor(m => m.Amount, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CategoryId)
+                <select name="CategoryId" id="CategoryId" class="form-control"></select>
+                @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.WalletId)
+                @Html.DropDownListFor(m => m.WalletId, Model.Wallets, new { @class = "form-control" })
+            </div>
+
+            <div class="form-group" id="toWalletGroup" style="@(Model.TransactionType == 3 ? "" : "display:none")">
+                @Html.LabelFor(m => m.ToWalletId)
+                @Html.DropDownListFor(m => m.ToWalletId, Model.Wallets, "-- Chọn ví nhận --", new { @class = "form-control" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.TransactionDate)
+                @Html.TextBoxFor(m => m.TransactionDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Description)
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 2 })
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fi fi-rr-disk"></i> Cập nhật
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fi fi-rr-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(function () {
+            var incomeOpts = [];
+            var expenseOpts = [];
+            var selectedCatId = '@Model.CategoryId';
+
+            @foreach (var c in Model.IncomeCategories)
+            {
+                @:incomeOpts.push({ value: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(c.Value)), text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(c.Text)) });
+            }
+            @foreach (var c in Model.ExpenseCategories)
+            {
+                @:expenseOpts.push({ value: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(c.Value)), text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(c.Text)) });
+            }
+
+            function updateCategoryOptions(type) {
+                var $sel = $('#CategoryId');
+                $sel.empty();
+                var opts = type == '1' ? incomeOpts : expenseOpts;
+                $.each(opts, function (i, o) {
+                    var $opt = $('<option>').val(o.value).text(o.text);
+                    if (o.value == selectedCatId) $opt.attr('selected', true);
+                    $sel.append($opt);
+                });
+            }
+
+            $('input[name="TransactionType"]').change(function () {
+                var val = $(this).val();
+                $('#toWalletGroup').toggle(val == '3');
+                updateCategoryOptions(val == '3' ? '2' : val);
+            });
+
+            var initType = $('input[name="TransactionType"]:checked').val() || '1';
+            updateCategoryOptions(initType == '3' ? '2' : initType);
+        });
+    </script>
+}

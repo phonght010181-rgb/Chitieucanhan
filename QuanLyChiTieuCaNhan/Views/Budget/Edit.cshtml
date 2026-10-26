@@ -1,0 +1,50 @@
+@model QuanLyChiTieuCaNhan.ViewModels.BudgetEditViewModel
+@{
+    ViewBag.Title = "Sửa ngân sách";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h4><i class="fi fi-rr-edit"></i> Sửa ngân sách</h4>
+        <hr />
+
+        @using (Html.BeginForm("Edit", "Budget", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.BudgetId)
+            @Html.HiddenFor(m => m.CategoryId)
+            @Html.HiddenFor(m => m.Month)
+            @Html.HiddenFor(m => m.Year)
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="form-group">
+                <label>Danh mục</label>
+                @{
+                    var catItem = Model.ExpenseCategories != null ? Model.ExpenseCategories.FirstOrDefault(c => c.Value == Model.CategoryId.ToString()) : null;
+                    var catName = catItem != null ? catItem.Text : "N/A";
+                }
+                <input type="text" class="form-control" value="@catName" readonly />
+            </div>
+
+            <div class="form-group">
+                <label>Kỳ ngân sách</label>
+                <input type="text" class="form-control" value="Tháng @Model.Month / @Model.Year" readonly />
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.LimitAmount)
+                @Html.TextBoxFor(m => m.LimitAmount, new { @class = "form-control", type = "number", step = "10000", min = "1" })
+                @Html.ValidationMessageFor(m => m.LimitAmount, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fi fi-rr-disk"></i> Cập nhật
+                </button>
+                <a href="@Url.Action("Index", new { month = Model.Month, year = Model.Year })" class="btn btn-secondary">
+                    <i class="fi fi-rr-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        }
+    </div>
+</div>

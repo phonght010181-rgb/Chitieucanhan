@@ -1,0 +1,49 @@
+@model QuanLyChiTieuCaNhan.ViewModels.RegisterViewModel
+@{
+    ViewBag.Title = "Đăng ký";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">Đăng ký tài khoản</h4>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.FullName)
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Nhập họ tên", autofocus = "autofocus" })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Nhập email" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Password)
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Tối thiểu 6 ký tự" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.ConfirmPassword)
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Nhập lại mật khẩu" })
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger small" })
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">
+                <i class="fi fi-rr-user-add"></i> Đăng ký
+            </button>
+        }
+    </div>
+    <div class="card-footer text-center bg-white">
+        <span class="text-muted">Đã có tài khoản?</span>
+        <a href="@Url.Action("Login", "Account")">Đăng nhập</a>
+    </div>
+</div>

@@ -1,0 +1,135 @@
+@model QuanLyChiTieuCaNhan.ViewModels.CategoryListViewModel
+@{
+    ViewBag.Title = "Danh mục";
+}
+
+<div class="page-heading">
+    <div><h1>Danh mục Thu / Chi</h1><p>Sắp xếp thu nhập và chi tiêu theo danh mục.</p></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fi fi-rr-plus"></i> Thêm danh mục
+    </a>
+</div>
+
+<div class="row">
+    <!-- Danh mục Thu -->
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white font-weight-bold">
+                <i class="fi fi-rr-arrow-down"></i> Danh mục Thu
+            </div>
+            <div class="card-body p-0">
+                @if (Model.IncomeCategories.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var cat in Model.IncomeCategories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@cat.Name</strong>
+                                    @if (cat.SubCategories.Any())
+                                    {
+                                        <ul class="list-unstyled ml-3 mt-1 mb-0">
+                                            @foreach (var sub in cat.SubCategories)
+                                            {
+                                                <li class="d-flex justify-content-between align-items-center py-1">
+                                                    <span class="text-muted">└ @sub.Name</span>
+                                                    <span class="action-buttons">
+                                                        <a href="@Url.Action("Edit", new { id = sub.CategoryId })" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"><i class="fi fi-rr-edit"></i></a>
+                                                        @if (!sub.HasTransactions)
+                                                        {
+                                                            using (Html.BeginForm("Delete", "Category", new { id = sub.CategoryId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa danh mục này?')" }))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-sm btn-icon btn-outline-danger" title="Xóa"><i class="fi fi-rr-trash"></i></button>
+                                                            }
+                                                        }
+                                                    </span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                                <span class="action-buttons">
+                                    <a href="@Url.Action("Edit", new { id = cat.CategoryId })" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"><i class="fi fi-rr-edit"></i></a>
+                                    @if (!cat.HasTransactions)
+                                    {
+                                        using (Html.BeginForm("Delete", "Category", new { id = cat.CategoryId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa danh mục này và tất cả danh mục con?')" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-icon btn-outline-danger" title="Xóa"><i class="fi fi-rr-trash"></i></button>
+                                        }
+                                    }
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">Chưa có danh mục thu</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh mục Chi -->
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white font-weight-bold">
+                <i class="fi fi-rr-arrow-up"></i> Danh mục Chi
+            </div>
+            <div class="card-body p-0">
+                @if (Model.ExpenseCategories.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var cat in Model.ExpenseCategories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@cat.Name</strong>
+                                    @if (cat.SubCategories.Any())
+                                    {
+                                        <ul class="list-unstyled ml-3 mt-1 mb-0">
+                                            @foreach (var sub in cat.SubCategories)
+                                            {
+                                                <li class="d-flex justify-content-between align-items-center py-1">
+                                                    <span class="text-muted">└ @sub.Name</span>
+                                                    <span class="action-buttons">
+                                                        <a href="@Url.Action("Edit", new { id = sub.CategoryId })" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"><i class="fi fi-rr-edit"></i></a>
+                                                        @if (!sub.HasTransactions)
+                                                        {
+                                                            using (Html.BeginForm("Delete", "Category", new { id = sub.CategoryId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa danh mục này?')" }))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-sm btn-icon btn-outline-danger" title="Xóa"><i class="fi fi-rr-trash"></i></button>
+                                                            }
+                                                        }
+                                                    </span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                                <span class="action-buttons">
+                                    <a href="@Url.Action("Edit", new { id = cat.CategoryId })" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"><i class="fi fi-rr-edit"></i></a>
+                                    @if (!cat.HasTransactions)
+                                    {
+                                        using (Html.BeginForm("Delete", "Category", new { id = cat.CategoryId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa danh mục này và tất cả danh mục con?')" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-icon btn-outline-danger" title="Xóa"><i class="fi fi-rr-trash"></i></button>
+                                        }
+                                    }
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">Chưa có danh mục chi</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

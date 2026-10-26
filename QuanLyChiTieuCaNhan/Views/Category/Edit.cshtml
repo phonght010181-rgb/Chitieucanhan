@@ -1,0 +1,48 @@
+@model QuanLyChiTieuCaNhan.ViewModels.CategoryEditViewModel
+@{
+    ViewBag.Title = "Sửa danh mục";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h4><i class="fi fi-rr-edit"></i> Sửa danh mục</h4>
+        <hr />
+
+        @using (Html.BeginForm("Edit", "Category", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.CategoryId)
+            @Html.HiddenFor(m => m.CategoryType)
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Name)
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                <label>Loại</label>
+                <input type="text" class="form-control" value="@(Model.CategoryType == 1 ? "Thu" : "Chi")" readonly />
+                @if (Model.HasTransactions)
+                {
+                    <small class="text-muted">Không thể thay đổi loại vì đã có giao dịch</small>
+                }
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.ParentCategoryId)
+                @Html.DropDownListFor(m => m.ParentCategoryId, Model.ParentCategories, new { @class = "form-control" })
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fi fi-rr-disk"></i> Cập nhật
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fi fi-rr-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        }
+    </div>
+</div>

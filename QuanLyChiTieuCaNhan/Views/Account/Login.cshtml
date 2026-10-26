@@ -1,0 +1,43 @@
+@model QuanLyChiTieuCaNhan.ViewModels.LoginViewModel
+@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <h1 class="auth-title">Đăng nhập</h1>
+
+        @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "needs-validation" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "ban@example.com", autocomplete = "username", autofocus = "autofocus" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="form-group">
+                <div class="d-flex justify-content-between">
+                    @Html.LabelFor(m => m.Password)
+                    <a href="@Url.Action("ForgotPassword", "Account")" class="small text-decoration-none">Quên mật khẩu?</a>
+                </div>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Nhập mật khẩu của bạn", autocomplete = "current-password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+            </div>
+
+
+
+
+            <button type="submit" class="btn btn-primary btn-block">
+                Đăng nhập
+            </button>
+        }
+    </div>
+    <div class="card-footer text-center bg-white">
+        <span class="text-muted">Chưa có tài khoản?</span>
+        <a href="@Url.Action("Register", "Account")">Đăng ký ngay</a>
+    </div>
+</div>

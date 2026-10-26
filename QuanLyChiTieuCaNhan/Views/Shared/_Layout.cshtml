@@ -1,0 +1,85 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var fullName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "Tài khoản";
+    var initial = string.IsNullOrWhiteSpace(fullName) ? "U" : fullName.Trim()[..1].ToUpperInvariant();
+    var navigation = new[] {
+        (Controller: "Dashboard", Title: "Tổng quan", Icon: "dashboard"),
+        (Controller: "Wallet", Title: "Ví tiền", Icon: "wallet"),
+        (Controller: "Transaction", Title: "Giao dịch", Icon: "exchange"),
+        (Controller: "Budget", Title: "Ngân sách", Icon: "chart-pie"),
+        (Controller: "Category", Title: "Danh mục", Icon: "apps"),
+        (Controller: "Report", Title: "Báo cáo", Icon: "chart-histogram")
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title - Quản Lý Chi Tiêu</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="~/ekash/fonts/rubik.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/ekash/icons/icons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Content/site.css" asp-append-version="true" />
+</head>
+<body class="dashboard">
+    <a class="skip-link" href="#main-content">Đến nội dung chính</a>
+    <aside class="sidebar" aria-label="Điều hướng chính">
+        <a class="sidebar-brand" asp-controller="Dashboard" asp-action="Index" aria-label="Trang tổng quan"><img src="~/ekash/images/logo-white.png" width="30" height="30" alt="" /></a>
+        <nav class="menu">
+            @foreach (var item in navigation)
+            {
+                var isActive = currentController == item.Controller;
+                <a class="menu-link @(isActive ? "active" : "")" asp-controller="@item.Controller" asp-action="Index" aria-label="@item.Title" aria-current="@(isActive ? "page" : null)">
+                    <i class="fi fi-rr-@item.Icon" aria-hidden="true"></i><span class="nav-text">@item.Title</span>
+                </a>
+            }
+        </nav>
+        <form class="sidebar-logout" asp-controller="Account" asp-action="Logout" method="post">
+            <button class="menu-link" type="submit" aria-label="Đăng xuất"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i><span class="nav-text">Đăng xuất</span></button>
+        </form>
+    </aside>
+    <header class="header">
+        <div class="workspace-container header-content">
+            <a class="header-brand" asp-controller="Dashboard" asp-action="Index"><img src="~/ekash/images/logoi.png" width="30" height="30" alt="" /><span>Quản lý chi tiêu</span></a>
+            <div class="header-right">
+                <span class="header-date"><i class="fi fi-rr-calendar" aria-hidden="true"></i> @DateTime.Now.ToString("dd/MM/yyyy")</span>
+                <div class="dropdown profile-menu">
+                    <button type="button" class="profile-toggle" id="profileMenu" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false" aria-label="Mở menu tài khoản @fullName">
+                        <span class="profile-avatar" aria-hidden="true">@initial</span><span class="profile-name">@fullName<small>Tài khoản cá nhân</small></span><i class="fi fi-rr-angle-small-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileMenu">
+                        <div class="profile-summary"><strong>@fullName</strong><span>@User.Identity?.Name</span></div>
+                        <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fi fi-rr-lock" aria-hidden="true"></i> Đổi mật khẩu</a>
+                        <a class="dropdown-item" asp-controller="Wallet" asp-action="Index"><i class="fi fi-rr-wallet" aria-hidden="true"></i> Ví tiền của tôi</a>
+                        <div class="dropdown-divider"></div>
+                        <form asp-controller="Account" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i> Đăng xuất</button></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="app-content">
+        <main class="workspace-container" id="main-content">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="status"><i class="fi fi-rr-check-circle" aria-hidden="true"></i> @TempData["Success"]<button type="button" class="close" data-dismiss="alert" aria-label="Đóng thông báo">&times;</button></div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert"><i class="fi fi-rr-exclamation" aria-hidden="true"></i> @TempData["Error"]<button type="button" class="close" data-dismiss="alert" aria-label="Đóng thông báo">&times;</button></div>
+            }
+            @RenderBody()
+        </main>
+        <footer class="workspace-container app-footer"><span>&copy; @DateTime.Now.Year Quản lý chi tiêu cá nhân</span><span>Thu chi rõ ràng, tài chính chủ động.</span></footer>
+    </div>
+    <script src="~/Scripts/jquery-3.6.4.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    <script src="~/Scripts/chart-3.9.1.min.js"></script>
+    <script src="~/Scripts/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("scripts", required: false)
+</body>
+</html>

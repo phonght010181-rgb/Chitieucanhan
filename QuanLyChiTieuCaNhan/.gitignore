@@ -1,0 +1,12 @@
+# Build output and IDE settings
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Local configuration and recovery email links
+appsettings.Local.json
+App_Data/
+*.log

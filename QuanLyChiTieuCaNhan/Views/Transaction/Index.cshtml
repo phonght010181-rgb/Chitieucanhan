@@ -1,0 +1,134 @@
+@model QuanLyChiTieuCaNhan.ViewModels.TransactionListViewModel
+@{
+    ViewBag.Title = "Giao dịch";
+}
+
+<div class="page-heading">
+    <div><h1>Danh sách giao dịch</h1><p>Xem và quản lý các khoản thu, chi và chuyển ví.</p></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fi fi-rr-plus"></i> Thêm giao dịch
+    </a>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        @using (Html.BeginForm("Index", "Transaction", FormMethod.Get, new { @class = "form-inline flex-wrap" }))
+        {
+            <div class="form-group mr-2 mb-2">
+                <select name="type" class="form-control form-control-sm">
+                    <option value="">Tất cả loại</option>
+                    <option value="1" selected="@(Model.FilterType == 1)">Thu</option>
+                    <option value="2" selected="@(Model.FilterType == 2)">Chi</option>
+                    <option value="3" selected="@(Model.FilterType == 3)">Chuyển khoản</option>
+                </select>
+            </div>
+            <div class="form-group mr-2 mb-2">
+                @Html.DropDownList("categoryId", Model.Categories, new { @class = "form-control form-control-sm" })
+            </div>
+            <div class="form-group mr-2 mb-2">
+                <select name="walletId" class="form-control form-control-sm">
+                    <option value="">Tất cả ví</option>
+                    @foreach (var w in Model.Wallets)
+                    {
+                        <option value="@w.Value" selected="@(Model.FilterWalletId.ToString() == w.Value)">@w.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group mr-2 mb-2">
+                <input type="date" name="fromDate" class="form-control form-control-sm" value="@(Model.FilterFromDate.HasValue ? Model.FilterFromDate.Value.ToString("yyyy-MM-dd") : "")" placeholder="Từ ngày" />
+            </div>
+            <div class="form-group mr-2 mb-2">
+                <input type="date" name="toDate" class="form-control form-control-sm" value="@(Model.FilterToDate.HasValue ? Model.FilterToDate.Value.ToString("yyyy-MM-dd") : "")" placeholder="Đến ngày" />
+            </div>
+            <button type="submit" class="btn btn-sm btn-outline-primary mb-2">
+                <i class="fi fi-rr-filter"></i> Lọc
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Bảng giao dịch -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        @if (Model.Transactions.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Loại</th>
+                            <th>Danh mục</th>
+                            <th>Ví</th>
+                            <th>Ghi chú</th>
+                            <th class="text-right">Số tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.Transactions)
+                        {
+                            var typeBadge = t.TransactionType == 1 ? "badge-success" : (t.TransactionType == 2 ? "badge-danger" : "badge-info");
+                            var typeName = t.TransactionType == 1 ? "Thu" : (t.TransactionType == 2 ? "Chi" : "Chuyển");
+                            var amountClass = t.TransactionType == 1 ? "text-success" : (t.TransactionType == 2 ? "text-danger" : "text-info");
+                            var prefix = t.TransactionType == 1 ? "+" : (t.TransactionType == 2 ? "-" : "↔");
+
+                            <tr>
+                                <td>@t.TransactionDate.ToString("dd/MM/yyyy")</td>
+                                <td><span class="badge @typeBadge">@typeName</span></td>
+                                <td>@(t.Category != null ? t.Category.Name : "N/A")</td>
+                                <td>
+                                    @(t.Wallet != null ? t.Wallet.Name : "N/A")
+                                    @if (t.ToWallet != null)
+                                    {
+                                        <span class="text-muted">→ @t.ToWallet.Name</span>
+                                    }
+                                </td>
+                                <td><small class="text-muted">@(t.Description ?? "")</small></td>
+                                <td class="text-right font-weight-bold @amountClass">@prefix@t.Amount.ToString("N0")</td>
+                                <td class="text-right">
+                                    <span class="action-buttons">
+                                    <a href="@Url.Action("Edit", new { id = t.TransactionId })" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa">
+                                        <i class="fi fi-rr-edit"></i>
+                                    </a>
+                                    @using (Html.BeginForm("Delete", "Transaction", new { id = t.TransactionId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa giao dịch này?')" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-icon btn-outline-danger" title="Xóa">
+                                            <i class="fi fi-rr-trash"></i>
+                                        </button>
+                                    }
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @* Phân trang *@
+            if (Model.TotalPages > 1)
+            {
+                var fromDateStr = Model.FilterFromDate.HasValue ? Model.FilterFromDate.Value.ToString("yyyy-MM-dd") : null;
+                var toDateStr = Model.FilterToDate.HasValue ? Model.FilterToDate.Value.ToString("yyyy-MM-dd") : null;
+
+                <nav class="p-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i, type = Model.FilterType, categoryId = Model.FilterCategoryId, walletId = Model.FilterWalletId, fromDate = fromDateStr, toDate = toDateStr })">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <p class="text-muted text-center py-5">Chưa có giao dịch nào</p>
+        }
+    </div>
+</div>
+

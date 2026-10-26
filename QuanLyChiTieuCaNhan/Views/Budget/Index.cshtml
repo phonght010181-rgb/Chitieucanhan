@@ -1,0 +1,92 @@
+@model QuanLyChiTieuCaNhan.ViewModels.BudgetListViewModel
+@{
+    ViewBag.Title = "Ngân sách";
+}
+
+<div class="page-heading">
+    <div><h1>Ngân sách tháng @Model.FilterMonth/@Model.FilterYear</h1><p>Đặt hạn mức và theo dõi kế hoạch chi tiêu.</p></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fi fi-rr-plus"></i> Tạo ngân sách
+    </a>
+</div>
+
+<!-- Bộ lọc tháng/năm -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        @using (Html.BeginForm("Index", "Budget", FormMethod.Get, new { @class = "form-inline" }))
+        {
+            <div class="form-group mr-2">
+                <label class="mr-2">Tháng:</label>
+                <select name="month" class="form-control form-control-sm">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m" selected="@(Model.FilterMonth == m)">@m</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group mr-2">
+                <label class="mr-2">Năm:</label>
+                <select name="year" class="form-control form-control-sm">
+                    @for (int y = DateTime.Now.Year - 2; y <= DateTime.Now.Year + 1; y++)
+                    {
+                        <option value="@y" selected="@(Model.FilterYear == y)">@y</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-sm btn-outline-primary">
+                <i class="fi fi-rr-filter"></i> Xem
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Danh sách ngân sách -->
+@if (Model.Budgets.Any())
+{
+    <div class="row">
+        @foreach (var b in Model.Budgets)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@b.CategoryName</h5>
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Đã chi: <strong>@b.SpentAmount.ToString("N0")</strong></small>
+                            <small>Hạn mức: <strong>@b.LimitAmount.ToString("N0")</strong></small>
+                        </div>
+                        <div class="progress mb-2" style="height: 15px;">
+                            <div class="progress-bar @b.ProgressBarClass" style="width: @(Math.Min(b.Percentage, 100).ToString("F0"))%">
+                                @b.Percentage.ToString("F0")%
+                            </div>
+                        </div>
+                        @if (b.Percentage > 90)
+                        {
+                            <div class="alert alert-danger py-1 px-2 mb-2 small">
+                                <i class="fi fi-rr-triangle-warning"></i> Vượt 90% hạn mức!
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-white action-buttons">
+                        <a href="@Url.Action("Edit", new { id = b.BudgetId })" class="btn btn-sm btn-outline-primary">
+                            <i class="fi fi-rr-edit"></i> Sửa
+                        </a>
+                        @using (Html.BeginForm("Delete", "Budget", new { id = b.BudgetId }, FormMethod.Post, false, new { @class = "d-inline", onclick = "return confirm('Xóa ngân sách này?')" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fi fi-rr-trash"></i> Xóa
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <p class="text-muted">Chưa có ngân sách nào cho tháng này</p>
+        <a href="@Url.Action("Create")" class="btn btn-primary">Tạo ngân sách đầu tiên</a>
+    </div>
+}
